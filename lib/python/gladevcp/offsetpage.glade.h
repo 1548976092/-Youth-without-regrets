@@ -1,0 +1,31 @@
+char *s = N_("Tool");
+char *s = N_("1");
+char *s = N_("2");
+char *s = N_("3");
+char *s = N_("4");
+char *s = N_("5");
+char *s = N_("6");
+char *s = N_("7");
+char *s = N_("8");
+char *s = N_("9");
+char *s = N_("white");
+char *s = N_("black");
+char *s = N_("G5x");
+char *s = N_("Rot");
+char *s = N_("Rotation of Z");
+char *s = N_("G92");
+char *s = N_("0");
+char *s = N_("G54");
+char *s = N_("G55");
+char *s = N_("G56");
+char *s = N_("G57");
+char *s = N_("G58");
+char *s = N_("G59");
+char *s = N_("G59.1");
+char *s = N_("G59.2");
+char *s = N_("G59.3");
+char *s = N_("Zero\n"
+             "G92");
+char *s = N_("    Zero\n"
+             "Rotational");
+char *s = N_("Edit");
