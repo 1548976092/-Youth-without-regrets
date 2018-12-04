@@ -1161,316 +1161,386 @@ static_pzx char stepIncrementLabel[32] = "0.123456";
 // destructively converts string to its uppercase counterpart
 static_pzx char *upcase(char *string)
 {
-  char *ptr = string;
+    char *ptr = string;
 
-  while (*ptr != 0)
+    while (*ptr != 0)
     {
-      *ptr = toupper(*ptr);
-      ptr++;
+        *ptr = toupper(*ptr);
+        ptr++;
     }
 
-  return string;
+    return string;
 }
+
+//read nml to global
 static_pzx int iniLoad(const char *filename)
 {
-  IniFile inifile;
-  const char *inistring;
-  char machine[LINELEN] = "";
-  char version[LINELEN] = "";
-  char displayString[LINELEN] = "";
-  int t;
-  int i;
-  double d;
+    IniFile inifile;
+    const char *inistring;
+    char machine[LINELEN] = "";
+    char version[LINELEN] = "";
+    char displayString[LINELEN] = "";
+    int t;
+    int i;
+    double d;
 
-  // open it
-  if (!inifile.Open(filename)) {
-    return -1;
-  }
-
-  if (NULL != (inistring = inifile.Find("MACHINE", "EMC"))) {
-    strcpy(machine, inistring);
-
-    if (NULL != (inistring = inifile.Find("VERSION", "EMC"))) {
-      sscanf(inistring, "$Revision: %s", version);
-
-      sprintf(version_string, "%s EMC Version %s", machine, version);
+// open nml
+    if (!inifile.Open(filename))
+    {
+        return -1;
     }
-  }
+//get MACHINE (in EMC)
+    if (NULL != (inistring = inifile.Find("MACHINE", "EMC")))
+    {
+        strcpy(machine, inistring);
 
-  if (NULL != (inistring = inifile.Find("DEBUG", "EMC"))) {
-    // copy to global
-    if (1 != sscanf(inistring, "%i", &emc_debug)) {
-      emc_debug = 0;
+        if (NULL != (inistring = inifile.Find("VERSION", "EMC")))
+        {
+          sscanf(inistring, "$Revision: %s", version);
+
+          sprintf(version_string, "%s EMC Version %s", machine, version);
+        }
     }
-  }
-  else {
-    // not found, use default
-    emc_debug = 0;
-  }
-
-  if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
-    // copy to global
-    strcpy(emc_nmlfile, inistring);
-  }
-  else {
-    // not found, use default
-  }
-
-  if (NULL != (inistring = inifile.Find("TOOL_TABLE", "EMCIO"))) {
-    strcpy(tool_table_file, inistring);
-  }
-  else {
-    strcpy(tool_table_file, "tool.tbl"); // FIXME-- hardcoded
-  }
-
-  if (NULL != (inistring = inifile.Find("PARAMETER_FILE", "RS274NGC"))) {
+//open debug model? (in EMC)
+    if (NULL != (inistring = inifile.Find("DEBUG", "EMC")))
+    {
+        // copy to global
+        if (1 != sscanf(inistring, "%i", &emc_debug))
+        {
+          emc_debug = 0;
+        }
+    }
+    else
+    {
+        // not found, use default
+        emc_debug = 0;
+    }
+//get NML_FILE (in EMC)
+    if (NULL != (inistring = inifile.Find("NML_FILE", "EMC")))
+    {
+        // copy to global
+        strcpy(emc_nmlfile, inistring);
+    }
+    else {
+        // not found, use default
+    }
+//get TOOL_TABLE (in EMCIO)
+    if (NULL != (inistring = inifile.Find("TOOL_TABLE", "EMCIO")))
+    {
+        strcpy(tool_table_file, inistring);
+    }
+    else
+    {
+        strcpy(tool_table_file, "tool.tbl"); // FIXME-- hardcoded
+    }
+//get PARAMETER_FILE (in RS274NGC)
+    if (NULL != (inistring = inifile.Find("PARAMETER_FILE", "RS274NGC"))) {
     strcpy(PARAMETER_FILE, inistring);
-  }
-  else {
+    }
+    else {
     strcpy(PARAMETER_FILE, "rs274ngc.var"); // FIXME-- hardcoded
-  }
-
-  if (NULL != (inistring = inifile.Find("DEFAULT_VELOCITY", "TRAJ"))) {
-    if (1 != sscanf(inistring, "%lf", &traj_default_velocity)) {
-      traj_default_velocity = DEFAULT_TRAJ_DEFAULT_VELOCITY;
     }
-  }
-  else {
-    traj_default_velocity = DEFAULT_TRAJ_DEFAULT_VELOCITY;
-  }
-  // round jogSpeed in display to integer, per-minute
-  jogSpeed = (int) (traj_default_velocity * 60.0 + 0.5);
-
-  if (NULL != (inistring = inifile.Find("MAX_VELOCITY", "TRAJ"))) {
-    if (1 != sscanf(inistring, "%lf", &traj_max_velocity)) {
-      traj_max_velocity = DEFAULT_TRAJ_MAX_VELOCITY;
-    }
-  }
-  else {
-    traj_max_velocity = DEFAULT_TRAJ_MAX_VELOCITY;
-  }
-  // round maxJogSpeed in display to integer, per-minute
-  maxJogSpeed = (int) (traj_max_velocity * 60.0 + 0.5);
-
-  if (NULL != (inistring = inifile.Find("HELP_FILE", "DISPLAY"))) {
-    strcpy(HELP_FILE, inistring);
-  }
-
-  if (NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY"))) {
-    if (1 != sscanf(inistring, "%s", programPrefix)) {
-      programPrefix[0] = 0;
-    }
-  }
-  else if (NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "TASK"))) {
-    if (1 != sscanf(inistring, "%s", programPrefix)) {
-      programPrefix[0] = 0;
-    }
-  }
-  else {
-    programPrefix[0] = 0;
-  }
-
-  if (NULL != (inistring = inifile.Find("POSITION_OFFSET", "DISPLAY"))) {
-    if (1 == sscanf(inistring, "%s", displayString)) {
-      if (! strcmp(upcase(displayString), "MACHINE")) {
-        coords = COORD_MACHINE;
-      }
-      else if (1 == sscanf(inistring, "%s", displayString)) {
-        if (! strcmp(upcase(displayString), "RELATIVE")) {
-          coords = COORD_RELATIVE;
+//get DEFAULT_VELOCITY (in TRAJ)
+    if (NULL != (inistring = inifile.Find("DEFAULT_VELOCITY", "TRAJ")))
+    {
+        if (1 != sscanf(inistring, "%lf", &traj_default_velocity))
+        {
+          traj_default_velocity = DEFAULT_TRAJ_DEFAULT_VELOCITY;
         }
-      }
-      else {
-        // error-- invalid value
-        // ignore
-      }
     }
-    else {
-      // error-- no value provided
-      // ignore
+    else
+    {
+        traj_default_velocity = DEFAULT_TRAJ_DEFAULT_VELOCITY;
     }
-  }
-  else {
-    // no line at all
-    // ignore
-  }
-
-  if (NULL != (inistring = inifile.Find("POSITION_FEEDBACK", "DISPLAY"))) {
-    if (1 == sscanf(inistring, "%s", displayString)) {
-      if (! strcmp(upcase(displayString), "ACTUAL")) {
-        posDisplay = POS_DISPLAY_ACT;
-      }
-      else if (1 == sscanf(inistring, "%s", displayString)) {
-        if (! strcmp(upcase(displayString), "COMMANDED")) {
-          posDisplay = POS_DISPLAY_CMD;
+// round *jogSpeed in display to integer, per-minute
+    jogSpeed = (int) (traj_default_velocity * 60.0 + 0.5);
+//get DEFAULT_VELOCITY (in TRAJ)
+    if (NULL != (inistring = inifile.Find("MAX_VELOCITY", "TRAJ")))
+    {
+        if (1 != sscanf(inistring, "%lf", &traj_max_velocity))
+        {
+          traj_max_velocity = DEFAULT_TRAJ_MAX_VELOCITY;
         }
-      }
-      else {
-        // error-- invalid value
-        // ignore
-      }
+    }
+    else
+    {
+         traj_max_velocity = DEFAULT_TRAJ_MAX_VELOCITY;
+    }
+// round *maxJogSpeed in display to integer, per-minute
+    maxJogSpeed = (int) (traj_max_velocity * 60.0 + 0.5);
+//get HELP_FILE (in DISPLAY)
+    if (NULL != (inistring = inifile.Find("HELP_FILE", "DISPLAY")))
+    {
+        strcpy(HELP_FILE, inistring);
+    }
+//get PROGRAM_PREFIX (in DISPLAY)
+    if (NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY")))
+    {
+        if (1 != sscanf(inistring, "%s", programPrefix))
+        {
+          programPrefix[0] = 0;
+        }
+    }
+    else if (NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "TASK")))
+    {
+        if (1 != sscanf(inistring, "%s", programPrefix))
+        {
+            programPrefix[0] = 0;
+        }
+    }
+    else
+    {
+          programPrefix[0] = 0;
+    }
+//get POSITION_OFFSET (in DISPLAY)
+    if (NULL != (inistring = inifile.Find("POSITION_OFFSET", "DISPLAY")))
+    {
+        if (1 == sscanf(inistring, "%s", displayString))
+        {
+            if (! strcmp(upcase(displayString), "MACHINE"))
+            {
+                coords = COORD_MACHINE;
+            }
+            else if (1 == sscanf(inistring, "%s", displayString))
+            {
+                if (! strcmp(upcase(displayString), "RELATIVE"))
+                {
+                  coords = COORD_RELATIVE;
+                }
+            }
+            else
+            {
+                // error-- invalid value
+                // ignore
+             }
+        }
+        else {
+          // error-- no value provided
+          // ignore
+        }
     }
     else {
-      // error-- no value provided
-      // ignore
-    }
-  }
-  else {
     // no line at all
     // ignore
-  }
-
-  for (t = 0; t < XEMC_NUM_AXES; t++) {
-    jogPol[t] = 1;              // set to default
-    sprintf(displayString, "AXIS_%d", t);
-    if (NULL != (inistring = inifile.Find("JOGGING_POLARITY", displayString)) &&
-        1 == sscanf(inistring, "%d", &i) &&
-        i == 0) {
-      // it read as 0, so override default
-      jogPol[t] = 0;
     }
-  }
-
-  if (NULL != (inistring = inifile.Find("MAX_FEED_OVERRIDE", "DISPLAY"))) {
-    if (1 == sscanf(inistring, "%lf", &d) &&
-        d > 0.0) {
-      maxFeedOverride = (int) (d * 100.0 + 0.5);
+//get POSITION_FEEDBACK (in DISPLAY)
+    if (NULL != (inistring = inifile.Find("POSITION_FEEDBACK", "DISPLAY")))
+    {
+        if (1 == sscanf(inistring, "%s", displayString))
+        {
+            if (! strcmp(upcase(displayString), "ACTUAL"))
+            {
+                posDisplay = POS_DISPLAY_ACT;
+            }
+            else if (1 == sscanf(inistring, "%s", displayString))
+            {
+                if (! strcmp(upcase(displayString), "COMMANDED"))
+                {
+                    posDisplay = POS_DISPLAY_CMD;
+                }
+            }
+            else
+            {
+                // error-- invalid value
+                // ignore
+            }
+        }
+        else
+        {
+          // error-- no value provided
+          // ignore
+        }
+    }
+    else
+    {
+    // no line at all
+    // ignore
+    }
+//get JOGGING_POLARITY (in displayString)
+    for (t = 0; t < XEMC_NUM_AXES; t++)
+    {
+        jogPol[t] = 1;              // set to default
+        sprintf(displayString, "AXIS_%d", t);
+        if (NULL != (inistring = inifile.Find("JOGGING_POLARITY", displayString)) &&
+            1 == sscanf(inistring, "%d", &i) &&
+            i == 0)
+        {
+            // it read as 0, so override default
+            jogPol[t] = 0;
+        }
+    }
+//get MAX_FEED_OVERRIDE (in DISPLAY)
+    if (NULL != (inistring = inifile.Find("MAX_FEED_OVERRIDE", "DISPLAY")))
+    {
+        if (1 == sscanf(inistring, "%lf", &d) && d > 0.0)
+        {
+          maxFeedOverride = (int) (d * 100.0 + 0.5);
+        }
+        else
+        {
+          // error-- no value provided
+          // ignore
+        }
     }
     else {
-      // error-- no value provided
-      // ignore
-    }
-  }
-  else {
     // no line at all
     // ignore
-  }
-
-  // FIXME-- we're using the first axis scale to set the jog increment.
-  // Note that stepIncrement is inited to a reasonable value above, and
-  // will only be reset on a good ini file match
-  if (NULL != (inistring = inifile.Find("INPUT_SCALE", "AXIS_0"))) {
-    if (1 == sscanf(inistring, "%lf", &d)) {
-      if (d < 0.0) {
-        stepIncrement = -1.0/d; // posify it
-      }
-      else if (d > 0.0) {
-        stepIncrement = 1.0/d;
-      }
-      // else it's 0, so ignore (this will kill the EMC, by the way)
     }
-  }
-  // set step increment to be less than 0.0010, the last fixed increment,
-  // if it's larger. Set to 0.0001 if so, which will be too small but it
-  // can't hurt.
-  if (stepIncrement >= 0.0010) {
-    stepIncrement = 0.0001;
-  }
-  sprintf(stepIncrementLabel, "%.6f", stepIncrement);
 
-  // close it
-  inifile.Close();
 
-  return 0;
+    // FIXME-- we're using the first axis scale to set the jog increment.
+    // Note that stepIncrement is inited to a reasonable value above, and
+    // will only be reset on a good ini file match
+
+//get INPUT_SCALE (in AXIS_0)
+    if (NULL != (inistring = inifile.Find("INPUT_SCALE", "AXIS_0")))
+    {
+        if (1 == sscanf(inistring, "%lf", &d))
+        {
+            if (d < 0.0)
+            {
+                stepIncrement = -1.0/d; // posify it
+            }
+            else if (d > 0.0)
+            {
+                stepIncrement = 1.0/d;
+            }
+            // else it's 0, so ignore (this will kill the EMC, by the way)
+        }
+    }
+
+    // set step increment to be less than 0.0010, the last fixed increment,
+    // if it's larger. Set to 0.0001 if so, which will be too small but it
+    // can't hurt.
+
+    if (stepIncrement >= 0.0010)
+    {
+        stepIncrement = 0.0001;
+    }
+    sprintf(stepIncrementLabel, "%.6f", stepIncrement);
+
+    // close it
+    inifile.Close();
+
+    return 0;
 }
 
 int main(int argc, char **argv)
 {
-  int t;
-  double start;
-  int good;
-  char string[80];
-  Dimension cmfbw, sdw, sw, siw, sh, bh, bw;
-  Dimension stw, mw;
-  Dimension posw;
-  Font posfont;
-int xxx;
-  // process command line args
-  if (0 != emcGetArgs(argc, argv)) {
-    rcs_print_error("error in argument list\n");
+    int               t         ;
+    double            start     ;
+    int               good      ;
+    char              string[80];
+    Dimension         cmfbw, sdw, sw, siw, sh, bh, bw;
+    Dimension         stw, mw;
+    Dimension         posw;
+    Font              posfont;
+
+    // process command line args
+    if (0 != emcGetArgs(argc, argv))
+    {
+        rcs_print_error("error in argument list\n");
+        //    exit(1);
+    }
+
+    // read INI file
+    iniLoad(emc_inifile);
+    // init NML
+
+    #define RETRY_TIME 10.0         // seconds to wait for subsystems to come up
+    #define RETRY_INTERVAL 1.0      // seconds between wait tries for a subsystem
+
+//    emc_debug = 0x00000040;
+    if (! (emc_debug & EMC_DEBUG_NML))
+    {
+        set_rcs_print_destination(RCS_PRINT_TO_NULL);     // inhibit diag messages
+    }
+
+    start = etime();
+    rcs_print_error("[%s]-[%d]-[%s]-[start:%f]\n ",__FILE__, __LINE__, __FUNCTION__,start);
+
+    good = 0;
+
+    do {
+        if (0 == emcTaskNmlGet())
+        {
+            good = 1;
+            break;
+        }
+        esleep(RETRY_INTERVAL);
+    } while ( etime() - start  <  RETRY_TIME );
+
+    if (! (emc_debug & EMC_DEBUG_NML))
+    {
+        set_rcs_print_destination(RCS_PRINT_TO_STDOUT); // restore diag messages
+    }
+
+    if (! good)
+    {
+        rcs_print_error("can't establish communication with emc\n");
 //    exit(1);
-  }
+    }
 
-
-  // read INI file
-  iniLoad(emc_inifile);
-
-
-  // init NML
-
-#define RETRY_TIME 10.0         // seconds to wait for subsystems to come up
-#define RETRY_INTERVAL 1.0      // seconds between wait tries for a subsystem
-
-    if (! (emc_debug & EMC_DEBUG_NML)) {
+    if (! (emc_debug & EMC_DEBUG_NML))
+    {
       set_rcs_print_destination(RCS_PRINT_TO_NULL);     // inhibit diag messages
     }
-  start = etime();
-  good = 0;
-  do {
-    if (0 == emcTaskNmlGet()) {
-      good = 1;
-      break;
-    }
-    esleep(RETRY_INTERVAL);
-  } while (etime() - start < RETRY_TIME);
-  if (! (emc_debug & EMC_DEBUG_NML)) {
-    set_rcs_print_destination(RCS_PRINT_TO_STDOUT); // restore diag messages
-  }
-  if (! good) {
-    rcs_print_error("can't establish communication with emc\n");
-//    exit(1);
-  }
+    start = etime();
+    good = 0;
 
-    if (! (emc_debug & EMC_DEBUG_NML)) {
-      set_rcs_print_destination(RCS_PRINT_TO_NULL);     // inhibit diag messages
-    }
-  start = etime();
-  good = 0;
-  do {
-    if (0 == emcErrorNmlGet()) {
-      good = 1;
-      break;
-    }
-    esleep(RETRY_INTERVAL);
-  } while (etime() - start < RETRY_TIME);
-    if (! (emc_debug & EMC_DEBUG_NML)) {
+    do {
+        if (0 == emcErrorNmlGet())
+        {
+            good = 1;
+            break;
+        }
+        esleep(RETRY_INTERVAL);
+    } while (etime() - start < RETRY_TIME);
+
+    if (! (emc_debug & EMC_DEBUG_NML))
+    {
       set_rcs_print_destination(RCS_PRINT_TO_STDOUT); // restore diag messages
     }
-    if (! good) {
-    rcs_print_error("can't establish communication with emc\n");
-//    exit(1);
-  }
+
+    if (! good)
+    {
+        rcs_print_error("can't establish communication with emc\n");
+    //    exit(1);
+    }
 
   // create file window for program text
 
-  programFwString =
-    (char *) malloc(PROGRAM_FW_NUM_LINES * PROGRAM_FW_LEN_LINES);
+    programFwString =  (char *) malloc(PROGRAM_FW_NUM_LINES * PROGRAM_FW_LEN_LINES);
 
-  if (0 != fwInit(&programFw, PROGRAM_FW_NUM_LINES, PROGRAM_FW_LEN_LINES)) {
-    fprintf(stderr, "can't init file window\n");
+    if (0 != fwInit(&programFw, PROGRAM_FW_NUM_LINES, PROGRAM_FW_LEN_LINES))
+    {
+        fprintf(stderr, "can't init file window\n");
 //    exit(1);
-  }
+    }
 
-rcs_print_error("mycnc_pzx let we go\n");
+    //first test
+    {
+        rcs_print_error("mycnc_pzx let we go\n");
 
-//sendEstopReset();
-//sendMachineOn();
-//sendManual();
+        //sendEstopReset();
+        //sendMachineOn();
+        //sendManual();
 
-rcs_print_error("mycnc_pzx let we sendManual\n");
+        rcs_print_error("mycnc_pzx let we sendManual\n");
 
-//sendJogCont(1,100);
-rcs_print_error("mycnc_pzx let we axis 1\n");
-//sendJogCont(0,100);
-rcs_print_error("mycnc_pzx let we axis 2\n");
-//sendJogCont(2,100);
-rcs_print_error("mycnc_pzx let we axis 3\n");
+        //sendJogCont(1,100);
+        rcs_print_error("mycnc_pzx let we axis 1\n");
+        //sendJogCont(0,100);
+        rcs_print_error("mycnc_pzx let we axis 2\n");
+        //sendJogCont(2,100);
+        rcs_print_error("mycnc_pzx let we axis 3\n");
+    }
 
-  QApplication a(argc, argv);
-  MainWindow w;
-  w.show();
+    QApplication a(argc, argv);
+    MainWindow w;
+    w.show();
 
-  return a.exec();
+    return a.exec();
 
-  return 0;
+    return 0;
 }
