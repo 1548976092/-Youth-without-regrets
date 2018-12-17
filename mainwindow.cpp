@@ -71,6 +71,17 @@ void MainWindow::pzx_testopencv()
             ui->label->setPixmap( QPixmap::fromImage(img) );
             rcs_print_error("%s(%d)-<%s>\n: ",__FILE__, __LINE__, __FUNCTION__);
 
+            cv::VideoCapture cap;
+            cap.open(0);
+            cv::Mat frame;//定义一个变量把视频源一帧一帧显示
+            cap >> frame;
+            if (frame.empty())
+            {
+                cout << "Finish" << endl;
+                return ;
+            }
+            cv::imshow("Input video", frame);
+            waitKey(30) == 27;
 
     }catch(cv::Exception & e){
         rcs_print_error("%s(%d)-<%s>Exception:%s \n: ",__FILE__, __LINE__, __FUNCTION__,e.what());
@@ -78,7 +89,29 @@ void MainWindow::pzx_testopencv()
 
 }
 
+void MainWindow::pzx_testvideo()
+{
+    cv::VideoCapture cap;
+    cap.open(0);
+    cv::Mat frame;//定义一个变量把视频源一帧一帧显示
+    while(1){
+        try{
 
+                cap >> frame;
+                if (frame.empty())
+                {
+                    cout << "Finish" << endl;
+                    return ;
+                }
+                cv::imshow("Input video", frame);
+                waitKey(100) == 27;
+
+        }catch(cv::Exception & e){
+            rcs_print_error("%s(%d)-<%s>Exception:%s \n: ",__FILE__, __LINE__, __FUNCTION__,e.what());
+        }
+    }
+
+}
 void MainWindow::open_pzx_control()
 {
 
@@ -320,8 +353,11 @@ MainWindow::MainWindow(QWidget *parent) :
     //opencv
     {
         QObject::connect(ui->testopencv,SIGNAL(clicked(bool)),this,SLOT(pzx_testopencv()));
-
+        QObject::connect(ui->video,SIGNAL(clicked(bool)),this,SLOT(pzx_testvideo()));
     }
+
+     rcs_print_error("%s(%d)-<%s>\n: ",__FILE__, __LINE__, __FUNCTION__);
+
 }
 
 MainWindow::~MainWindow()

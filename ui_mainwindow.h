@@ -77,6 +77,7 @@ public:
     QPushButton *home;
     QLabel *label;
     QPushButton *testopencv;
+    QPushButton *video;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -286,6 +287,9 @@ public:
         testopencv = new QPushButton(centralWidget);
         testopencv->setObjectName(QStringLiteral("testopencv"));
         testopencv->setGeometry(QRect(420, 0, 80, 26));
+        video = new QPushButton(centralWidget);
+        video->setObjectName(QStringLiteral("video"));
+        video->setGeometry(QRect(520, 0, 80, 26));
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
@@ -336,6 +340,7 @@ public:
         home->setText(QApplication::translate("MainWindow", "home", Q_NULLPTR));
         label->setText(QApplication::translate("MainWindow", "TextLabel", Q_NULLPTR));
         testopencv->setText(QApplication::translate("MainWindow", "testopencv", Q_NULLPTR));
+        video->setText(QApplication::translate("MainWindow", "video", Q_NULLPTR));
     } // retranslateUi
 
 };

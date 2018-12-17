@@ -1,0 +1,11 @@
+https://blog.csdn.net/whatamadman/article/details/75676334
+
+https://mirrors.edge.kernel.org/pub/linux/kernel/v4.x/
+
+https://www.xenomai.org/downloads/ipipe/v4.x/x86/
+
+https://www.xenomai.org/downloads/xenomai/stable/
+
+sudo /home/dahua/xenopzx/xenomai-3.0.5/scripts/prepare-kernel.sh --linux=/home/dahua/xenopzx/linux-4.9.24  --ipipe=/home/dahua/xenopzx/ipipe-core-4.9.24-x86-2.patch
+
+https://blog.csdn.net/xringm/article/details/79914807

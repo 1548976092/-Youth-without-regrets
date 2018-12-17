@@ -34,6 +34,7 @@ private slots://信号槽
     void pzx_home();
 
     void pzx_testopencv();
+    void pzx_testvideo();
 };
 
 #endif // MAINWINDOW_H

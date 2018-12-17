@@ -1432,9 +1432,9 @@ int main(int argc, char **argv)
     int               good      ;
     char              string[80];
     Dimension         cmfbw, sdw, sw, siw, sh, bh, bw;
-    Dimension         stw, mw;
-    Dimension         posw;
-    Font              posfont;
+    Dimension         stw, mw   ;
+    Dimension         posw      ;
+    Font              posfont   ;
 
     // process command line args
     if (0 != emcGetArgs(argc, argv))
