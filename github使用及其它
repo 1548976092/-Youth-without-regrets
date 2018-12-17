@@ -1,0 +1,98 @@
+https://blog.csdn.net/whatamadman/article/details/75676334
+
+https://mirrors.edge.kernel.org/pub/linux/kernel/v4.x/
+
+https://www.xenomai.org/downloads/ipipe/v4.x/x86/
+
+https://www.xenomai.org/downloads/xenomai/stable/
+
+sudo /home/dahua/xenopzx/xenomai-3.0.5/scripts/prepare-kernel.sh --linux=/home/dahua/xenopzx/linux-4.9.24  --ipipe=/home/dahua/xenopzx/ipipe-core-4.9.24-x86-2.patch
+
+https://blog.csdn.net/xringm/article/details/79914807
+
+
+xenomai-2.5.6
+./configure  --enable-x86-sep
+
+
+Preempt-RT
+
+https://mirrors.edge.kernel.org/pub/linux/kernel/v4.x/
+https://mirrors.edge.kernel.org/pub/linux/kernel/projects/rt/4.14/
+
+ gzip -cd ../patch-4.14.39-rt29.patch.gz | patch -p1 --verbose
+https://blog.csdn.net/x356982611/article/details/77370385
+sudo make -j2
+sudo make modules_install -j2
+sudo make install -j2
+
+
+
+./configure  --with-kernel-headers=/home/dahua/xenopzx/linux-4.14.39 --with-x   --enable-simulator
+
+./configure  --with-kernel-headers=/home/dahua/xenopzx/linux-4.14.39
+
+sudo apt-get install rt-tests
+https://blog.csdn.net/longerzone/article/details/16897655
+
+http://soundproofingforum.co.uk/rpi_linuxcnc/raspberrypilinuxcnc.htm
+https://www.raspberrypi.org/forums/viewtopic.php?f=32&t=34281
+https://www.raspberrypi.org/forums/viewtopic.php?f=37&t=33809&sid=b8e623edc73eae8da7cc9fcfc984dcfb&start=950
+
+comp --compile hal_gpio.c
+cp hal_gpio.so /usr/lib/linuxcnc/rt-preempt
+loadrt hal_gpio dir=15729632 pullUp=33652740
+
+http://www.doczj.com/list_71/450
+
+
+http://blog.sina.com.cn/s/blog_a2a6dd380102vrai.html
+https://wenku.baidu.com/view/99ead3a987c24028905fc306.html
+
+
+patch  -p1 < rtai-5.1/base/arch/x86/patches/hal-linux-4.9.80-x86-4.patch
+
+
+
+
+./configure   --with-kernel-headers=/home/dahua/xenopzx/linux-4.14.39 --enable-examples --with-rt-preempt --with-x 
+
+
+sudo apt-get install qt5-default
+sudo apt-get install qtcreator
+
+opencv3.4 install
+https://blog.csdn.net/wzz18191171661/article/details/70147709
+cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D WITH_TBB=ON -D WITH_V4L=ON -D WITH_QT=ON -D INSTALL_C_EXAMPLES=ON -D INSTALL_PYTHON_EXAMPLES=ON -D WITH_OPENGL=ON ..
+https://blog.csdn.net/wzz18191171661/article/details/70147709
+
+
+ssh -p 48820 firefly@shanghaihost.xuduan.vip
+scp -P 48820 firefly@shanghaihost.xuduan.vip:/home/firefly/workspace/CNC/9AxisPzxCnc.zip .
+scp  -P 48820 pzxLinuxcnc.zip  firefly@shanghaihost.xuduan.vip:/home/firefly/workspace/CNC/
+
+scp  . firefly@shanghaihost.xuduan.vip:/home/firefly/workspace/CNC/9AxisPzxCnc.zip -P 48820
+
+
+git clone username@host:/path/to/repository
+
+ssh -T git@github.com
+git add *
+git commit -m "代码提交信息"
+git push origin master
+
+
+git push -u origin +master
+
+
+
+
+
+
+
+
+
+
+
+
+sudo genisoimage -D -joliet-long -L -no-emul-boot -boot-load-size 4 -boot-info-table -b isolinux/isolinux.bin -c isolinux/boot.cat -o ../test.iso /extract-cd
