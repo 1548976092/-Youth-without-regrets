@@ -96,3 +96,14 @@ git push -u origin +master
 
 
 sudo genisoimage -D -joliet-long -L -no-emul-boot -boot-load-size 4 -boot-info-table -b isolinux/isolinux.bin -c isolinux/boot.cat -o ../test.iso /extract-cd
+
+
+ ssh -p 30848 pi@shanghaihost.xuduan.vip
+pi 111111
+scp  -P 30848 test_mem.c  pi@shanghaihost.xuduan.vip:/home/pi/
+
+
+sudo  sysbench --cpu-max-prime=20000 --threads=1 cpu run
+
+
+sysbench --threads=12 --events=10000  --memory-block-size=8K --memory-total-size=100G --memory-access-mode=seq memory run
