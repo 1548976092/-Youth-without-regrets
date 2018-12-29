@@ -107,3 +107,30 @@ sudo  sysbench --cpu-max-prime=20000 --threads=1 cpu run
 
 
 sysbench --threads=12 --events=10000  --memory-block-size=8K --memory-total-size=100G --memory-access-mode=seq memory run
+
+
+grep -r "STRAIGHT_FEED*" .
+
+
+g++ testpp.cc  -I/home/dahua/linuxcnc-2.7.14/include -L/home/dahua/linuxcnc-2.7.14/lib -I/usr/include/python2.7/   -lboost_python -lpython2.7 -Wl,-soname,libpyplugin.so.0   -o testpp
+
+
+上面这句表示在编译hello.c时：
+
+    -I /home/hello/include表示将/home/hello/include目录作为第一个寻找头文件的目录，寻找的顺序是：/home/hello/include–>/usr/include–>/usr/local/include （注意这个是大写的i）
+    -L /home/hello/lib表示将/home/hello/lib目录作为第一个寻找库文件的目录，寻找的顺序是：/home/hello/lib–>/lib–>/usr/lib–>/usr/local/lib
+    -lworld表示在上面的lib的路径中寻找libworld.so动态库文件（如果gcc编译选项中加入了“-static”表示寻找libworld.a静态库文件）(注意这个是小写的L)
+
+g++ testpp.cc  -L/home/dahua/linuxcnc-2.7.14/lib  -I/usr/include/python2.7/   -lboost_python -lpython2.7   -o testpp ../../../lib/libpyplugin.so.0 
+
+
+ g++ testpp.cc  -I/usr/include/python2.7/   -lboost_python -lpython2.7   -o testpp ../../../lib/libpyplugin.so.0 
+
+//编译链接testpp.cc
+ g++ testpp.cc  -L/home/dahua/linuxcnc-2.7.14/lib  -I/usr/include/python2.7/   -lboost_python -lpython2.7 -lpyplugin  -o testpp 
+
+ $@ 代表目标 上例为$(BUILT_IN_OBJ)
+$^ 代表所有的依赖对象 
+
+
+python -m pdb axis
